@@ -1,0 +1,35 @@
+input{
+  border:1px solid #fff;
+  background-color:#fff;
+  transition: 0.2s border,background-color;
+  display:block;
+  width:100%;
+}
+
+input:hover{
+  border:1px solid #ddd;
+}
+
+input:focus{
+  border:1px solid #ddd;
+  background-color:#eee;
+  outline: 0;
+}
+
+.title{
+  font-weight:bold;
+  font-size:16pt;
+}
+
+.helpline{
+  font-style:italic;
+  font-size:10pt;
+}
+
+.multiplechoice{
+  font-size:10pt;
+}
+
+.italic{
+  font-style:italic;
+}

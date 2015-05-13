@@ -1,0 +1,13 @@
+{
+  "name": "formcreator",
+  "version": "0.0.1",
+  "description": "A form creator written in socket.io",
+  "dependencies": {
+    "express": "^4.10.2",
+    "socket.io": "^1.3.5"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pfgithub/FormCreator.git"
+  }
+}
