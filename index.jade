@@ -1,6 +1,12 @@
 doctype html
-html(lang="en")
+html
   head
-    title Form Creator - Description goes here 
+    title Form Creator - Description
+    link(rel='stylesheet', href='css.css', type='text/css')
   body
-    .container
+    #container
+      #data
+      span#add.add You need javascript to use Form Creator
+    script(src='socket.io/socket.io.js')
+    script(src='http://code.jquery.com/jquery-1.11.1.js')
+    script(type='text/javascript', src='js.js')
