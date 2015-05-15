@@ -4,9 +4,11 @@ html
     title Form Creator - Description
     link(rel='stylesheet', href='editor.css', type='text/css')
   body
+    form(method='POST',action='logout')
+        input(type='submit',value='Logout')
     #container
       #data
       span#add.add You need javascript to use Form Creator
-    script(src='socket.io/socket.io.js')
-    script(src='http://code.jquery.com/jquery-1.11.1.js')
+    script(type='text/javascript', src='socket.io/socket.io.js')
+    script(type='text/javascript', src='https://code.jquery.com/jquery-2.1.4.js')
     script(type='text/javascript', src='js.js')

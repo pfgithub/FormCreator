@@ -1,0 +1,11 @@
+doctype html
+html
+  head
+    title Form Creator
+    link(rel='stylesheet', href='main.css', type='text/css') 
+  body
+    form(method='POST',action='login')
+        input(type='text',placeholder='Username or Email address',name='username')
+        input(type='password',placeholder='Password')
+        input(type='submit',value='Login')
+    a(href='signup') Don't have an account? Sign up for a free account

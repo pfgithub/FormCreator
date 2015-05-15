@@ -1,0 +1,13 @@
+doctype html
+html
+  head
+    title Form Creator
+    link(rel='stylesheet', href='main.css', type='text/css') 
+  body
+    form(method='POST',action='login')
+        input(type='text',placeholder='Username',name='username')
+        input(type='password',placeholder='Password')
+        input(type='password',placeholder='Retype password')
+        input(type='text',placeholder='Email address')
+        input(type='submit',value='Signup')
+    a(href='/login') Already have an account? Login

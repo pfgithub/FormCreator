@@ -1,3 +1,5 @@
+console.log('Loaded');
+
 var data = [];
 var types = {
   multipleChoice:0,
