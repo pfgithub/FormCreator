@@ -36,15 +36,29 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.post('/login', function (req, res) {
   var sess = req.session;
-  sess.user = {signedin:true,username:req.username};
-  console.log(sess.user);
-  console.log(req.body.username);
+  sess.user = {signedin:true,username:req.body.username};
   res.redirect('/');
 });
 
 app.post('/logout', function (req, res) {
   var sess = req.session;
   sess.user = {signedin:false};
+  res.redirect('/');
+});
+
+app.get('/forms', function (req, res) {
+  var sess = req.session;
+  checkuser(req);
+  if(sess.user.signedin){
+    res.render('files', { username: sess.user.username  });
+  }else{
+    res.redirect('/login');
+  }
+});
+
+app.post('/load', function (req, res) {
+  var sess = req.session;
+  sess.url = "LOADFILE";
   res.redirect('/');
 });
 
@@ -55,25 +69,54 @@ app.put('/user', function (req, res) {
 
 app.get('/signup', function(req,res){
   var sess = req.session;
-  sess.url = "SIGNUP";
-  res.redirect('/');
+  checkuser(req);
+  if(sess.user.signedin){
+    res.redirect('/');
+  }else{
+    res.render('signup');
+  }
 });
 
 app.get('/login', function(req,res){
   var sess = req.session;
-  sess.url = "LOGIN";
-  res.redirect('/');
+  checkuser(req);
+  if(sess.user.signedin){
+    res.redirect('/');
+  }else{
+    res.render('login');
+  }
 });
+
+var checkuser = function(req){
+  var sess = req.session;
+  if(sess.user === undefined){sess.user = {signedin: false};}
+};
 
 app.get('/', function(req,res){
   var sess = req.session;
+  if(sess.user.signedin){
+    res.redirect('/forms');
+  }else{
+    res.redirect('/login');
+  }
+  /*var sess = req.session;
   console.log(sess.user);
   if(sess.user === undefined){
     sess.user = {signedin:false};
   }
   if(sess.user.signedin){
-    console.log('editor');
-    res.render('editor');
+    switch(sess.url){
+      case "LIST":
+        console.log('files');
+        res.render('files', { username: sess.user.username  });break;
+      case "LOADFILE":
+        console.log('editor');
+        res.render('editor', { username: sess.user.username  });break;
+      default:
+        console.log('500');
+        res.render('500',{error: 'URL not found: ' + sess.url + '. Refresh page to fix'});
+        sess.url = "LIST";break;
+    }
   }else{
     if(sess.url === undefined){sess.url = "LOGIN";}
     switch(sess.url){
@@ -85,9 +128,10 @@ app.get('/', function(req,res){
         res.render('signup');break;
       default:
         console.log('500');
-        res.render('500');break;
+        res.render('500',{error: 'URL not found: ' + sess.url + '. Refresh page to fix'});
+        sess.url = "LOGIN";break;
     }
-  }
+  }*/
   //res.render('signup');
   //res.render('editor');
 });

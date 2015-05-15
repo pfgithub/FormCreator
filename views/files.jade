@@ -1,0 +1,17 @@
+doctype html
+html
+  head
+    title Form Creator - My Forms
+    link(rel='stylesheet', href='main.css', type='text/css') 
+  body
+    | Logged in as 
+    span.username.italic #{username} 
+    form(method='POST',action='list',style='display:inline')
+        input(type='submit',value='My Forms')
+    form(method='POST',action='logout',style='display:inline')
+        input(type='submit',value='Logout')
+    form(method='POST',action='login')
+        input(type='text',placeholder='Username or Email address',name='username')
+        input(type='password',placeholder='Password')
+        input(type='submit',value='Login')
+    a(href='signup') Don't have an account? Sign up for a free account

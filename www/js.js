@@ -70,15 +70,15 @@ var compileData = function(){
         var addOption = $('<li>')
           .append($('<input>')
             .val('Click to add option')
-            .attr('class','italic multiplechoice')
+            .attr('class','italic multiplechoice input')
             .click());
         $('#data').append($('<div>')
           .append($('<input>')
             .val(bit.help == 0 ? "Click to add text" : bit.help)
-            .attr('class','title'))
+            .attr('class','title input'))
           .append($('<input>')
             .val(bit.help == 0 ? "Click to add text" : bit.help)
-            .attr('class','helpline'))
+            .attr('class','helpline input'))
           .append($('<ul>')
             .append(addOption))
         );
