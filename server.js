@@ -1,11 +1,14 @@
 var express = require('express');
 var app = express();
-var http = require('http').Server(app);
+var http_s = require('http').Server(app);
 var io = require('socket.io')(http); // SWITCH TO SOCKJS
 var r = require('rethinkdbdash')();
 var session = require('express-session');
 var bodyParser = require("body-parser");
 var bcrypt = require('bcrypt');
+
+var http = require('http');
+var sockjs = require('sockjs');
 
 var formWriter = require('./formWriter');
 
@@ -87,7 +90,7 @@ app.get('/login', function(req,res){
     if(sess.user.signedin){
       res.redirect('/');
     }else{
-      res.render('login', {error: req.param('error')});
+      res.render('login', {error: req.params.error});
     }
   }
 });
@@ -230,7 +233,7 @@ app.get('/signup', function(req,res){
   if(sess.user.signedin){
     res.redirect('/');
   }else{
-    res.render('signup', {error: req.param('error')});
+    res.render('signup', {error: req.params.error});
   }
 });
 
@@ -287,6 +290,19 @@ app.get('*', function(req,res){
   res.render('404');
 });
 
-http.listen(process.env.PORT, function(){
+http_s.listen(process.env.PORT, function(){
   console.log('listening on *:' + process.env.PORT);
 });
+
+var formeditor = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js' });
+formeditor.on('connection', function(conn) {
+  conn.on('data', function(message) {
+    conn.write(message);
+  });
+  conn.on('close', function() {
+  });
+});
+
+var server = http.createServer();
+formeditor.installHandlers(server, {prefix:'/formeditor'});
+server.listen(9999, '0.0.0.0');

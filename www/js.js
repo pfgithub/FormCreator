@@ -1,4 +1,19 @@
+/* global SockJS */
 console.log('Loaded');
+var sock = new SockJS('/formeditor');
+
+sock.onopen = function() {
+  console.log('Connected to server');
+
+  sock.send('auth: pfg');
+  //sock.close();
+};
+sock.onmessage = function(e) {
+  console.log('Message:', e.data);
+};
+sock.onclose = function() {
+  console.log('Server closed the connection');
+};
 
 var data = [];
 var types = {
