@@ -1,7 +1,7 @@
 var express = require('express');
 var app = express();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http); // SWITCH TO SOCKJS
 var r = require('rethinkdbdash')();
 var session = require('express-session');
 var bodyParser = require("body-parser");

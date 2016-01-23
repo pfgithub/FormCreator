@@ -39,9 +39,13 @@ var addMultipleChoice = function(){
     {
       type: types.multipleChoice,
       text: "",
-      help: "",
-      responces:[
-        
+      help: {
+        text: ""
+      },
+      responses:[
+        {
+          text: ""
+        }
       ]
     }
   );
@@ -50,8 +54,18 @@ var addMultipleChoice = function(){
 
 function updateText(e){
   setTimeout(function(){
-    console.log(this);
     this.text = $(e.target).val();
+  }.bind(this),5);
+}
+
+function addMCOption(e){
+  setTimeout(function(){
+    this.arr.push({
+      text: ""
+    });
+    this.me.noCallback = true;
+    this.me.focus = true;
+    compileData();
   }.bind(this),5);
 }
 
@@ -75,15 +89,36 @@ var compileData = function(){
           .append($('<ul>')
             .append(addOption))
         );*/
+        var mcOptions = $('<ul>');
+        item.responses.forEach(function(resp){
+          var iToAppend = 
+            $('<input>')
+              .val(resp.text)
+              .attr('placeholder', resp.noCallback ? 'Click to add text' : 'Click to add option')
+              .addClass('helpline input')
+              .keypress(updateText.bind(resp))
+              .focusin(resp.noCallback ? undefined : addMCOption.bind({"arr": item.responses, "me": resp}));
+          mcOptions.append(
+            $('<li>').append(iToAppend)
+          );
+          setTimeout(function(){
+            if(resp.focus){
+              iToAppend.focus();
+              resp.focus = false;
+            }
+          }.bind(this),5);
+        });
         $('#data').append(
           $('<div>')
             .append($('<input>')
               .val(item.text)
               .attr('placeholder', 'Click to add text')
               .addClass('italic multiplechoice input')
-              .keypress(updateText.bind({"text": item.text}))
+              .keypress(updateText.bind(item))
             )
+            .append(mcOptions)
         );
+        
         
         break;
       default:
