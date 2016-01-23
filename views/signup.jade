@@ -3,11 +3,17 @@ html
   head
     title Form Creator
     link(rel='stylesheet', href='main.css', type='text/css') 
+    link(rel='stylesheet', href='signup.css', type='text/css') 
   body
-    form(method='POST',action='login')
-        input(type='text',placeholder='Username',name='username')
-        input(type='password',placeholder='Password')
-        input(type='password',placeholder='Retype password')
-        input(type='text',placeholder='Email address')
-        input(type='submit',value='Signup')
-    a(href='/login') Already have an account? Login
+    #error Error: #{error}
+    script.var body = document.getElementsByTagName('body')[0]; var socument = document.getElementById('error'); if(socument.innerHTML == 'Error: '){body.removeChild(socument)}
+    script(type='text/javascript', src='https://code.jquery.com/jquery-2.1.4.js')
+    script(src='signupverify.js')
+    .container
+      form(method='POST',action='signup')
+          input.username(type='text',placeholder='Username',name='username')
+          input#password.invalid.password(type='password',placeholder='Password',name='password')
+          input#passwordConf.invalid.password(type='password',placeholder='Retype password',name='confirm')
+          input.email(type='text',placeholder='Email address',name='email')
+          input.signup(type='submit',value='Signup')
+      a(href='/login') Already have an account? Login

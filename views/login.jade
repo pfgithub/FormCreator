@@ -3,9 +3,13 @@ html
   head
     title Form Creator
     link(rel='stylesheet', href='main.css', type='text/css') 
+    link(rel='stylesheet', href='login.css', type='text/css') 
   body
-    form(method='POST',action='login')
-        input(type='text',placeholder='Username or Email address',name='username')
-        input(type='password',placeholder='Password')
-        input(type='submit',value='Login')
-    a(href='signup') Don't have an account? Sign up for a free account
+    #error Error: #{error}
+    script.var body = document.getElementsByTagName('body')[0]; var socument = document.getElementById('error'); if(socument.innerHTML == 'Error: '){body.removeChild(socument)}
+    .container
+      form(method='POST',action='login')
+          input.username(type='text',placeholder='Username',name='username')
+          input.password(type='password',placeholder='Password',name='password')
+          input.login(type='submit',value='Login')
+      a(href='signup') Don't have an account? Sign up for a free account

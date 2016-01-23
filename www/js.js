@@ -48,26 +48,19 @@ var addMultipleChoice = function(){
   compileData();
 };
 
-
-
-/*var loadOptions = function(tag){
-  var jtag = $(tag.target).parent().parent();
-  jtag.empty();
-  jtag
-    .append($('<li>')
-      .append($('<input>')
-        .val('Option 1')
-        .attr('class','italic multiplechoice')))
-      .append(addOption);
-  
-};*/
+function updateText(e){
+  setTimeout(function(){
+    console.log(this);
+    this.text = $(e.target).val();
+  }.bind(this),5);
+}
 
 var compileData = function(){
   $('#data').empty();
-  data.forEach(function(bit,i){
-    switch(bit.type){
+  data.forEach(function(item,i){
+    switch(item.type){
       case types.multipleChoice:
-        var addOption = $('<li>')
+        /*var addOption = $('<li>')
           .append($('<input>')
             .val('Click to add option')
             .attr('class','italic multiplechoice input')
@@ -81,6 +74,15 @@ var compileData = function(){
             .attr('class','helpline input'))
           .append($('<ul>')
             .append(addOption))
+        );*/
+        $('#data').append(
+          $('<div>')
+            .append($('<input>')
+              .val(item.text)
+              .attr('placeholder', 'Click to add text')
+              .addClass('italic multiplechoice input')
+              .keypress(updateText.bind({"text": item.text}))
+            )
         );
         
         break;

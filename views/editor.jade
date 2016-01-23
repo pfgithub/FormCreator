@@ -6,10 +6,8 @@ html
   body
     | Logged in as 
     span.username.italic #{username} 
-    form(method='POST',action='list',style='display:inline')
-        input(type='submit',value='My Forms')
-    form(method='POST',action='logout',style='display:inline')
-        input(type='submit',value='Logout')
+    a(href='forms') My Forms
+    a(href='logout') Logout
     input(type='text',value='New Form').input.maintitle
     #container
       #data

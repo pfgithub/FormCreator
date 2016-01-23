@@ -6,8 +6,6 @@ html
   body
     | Logged in as 
     span.username.italic #{username} 
-    a(href='settings') Account Settings
+    a(href='forms') My Forms
     a(href='logout') Logout
-    ul
-      li
-        a(href='/newform') New Form
+    input(type='text',value='#(username)',placeholder='Change Username')
