@@ -6,19 +6,45 @@ var types = {
   multiline:1,
   oneline:2};
 
+var prevBtn = addClose;
+
 var addClose = function(){
+  prevBtn = addClose;
   $('#add').empty();
   $('#add').append($('<button>').text('Add question').click(addOpen));
-  $('#add').append($('<button>').text('Add other').click(addOpen));
-  $('#add').append($('<button>').text('Settings').click(addOpen));
+  $('#add').append($('<button>').text('Add other').click(otherOpen));
+  $('#add').append($('<button>').text('Settings').click(settingsOpen));
 };
 var addOpen = function(){
+  prevBtn = addOpen;
   $('#add').empty();
-  $('#add').append($('<button>').text('<').click(addClose));
+  $('#add').append($('<button>').text('<').click(prevBtn));
   $('#add').append($('<button>').text('Multiple Choice').click(addMultipleChoice));
-  $('#add').append($('<button>').text('Multiline Text'));
-  $('#add').append($('<button>').text('One line text'));
+  $('#add').append($('<button>').text('Multiline Text').click(niy));
+  $('#add').append($('<button>').text('One line text').click(niy));
 };
+var otherOpen = function(){
+  prevBtn = otherOpen;
+  $('#add').empty();
+  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<button>').text('Text section').click(niy));
+  $('#add').append($('<button>').text('Help section').click(niy));
+  $('#add').append($('<button>').text('Link').click(niy));
+  $('#add').append($('<button>').text('Image').click(niy));
+  $('#add').append($('<button>').text('Video').click(niy));
+};
+var settingsOpen = function(){
+  prevBtn = settingsOpen;
+  $('#add').empty();
+  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<button>').text('Mode').click(niy));
+  $('#add').append($('<button>').text('Responses').click(niy));
+};
+function niy(){
+  $('#add').empty();
+  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<span>').text('Not Implemented Yet'));
+}
 
 addClose();
 
