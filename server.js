@@ -336,6 +336,8 @@ function parseData(message){
   }
 }
 
+var formEditorUsers = {};
+
 var formeditor = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js' });
 formeditor.on('connection', function(conn) {
   var connUUID = undefined;
@@ -350,11 +352,20 @@ formeditor.on('connection', function(conn) {
           connUUID = dataMessage.data;
           connUname = formEditorSessions[connUUID].uname;
           connFormID = formEditorSessions[connUUID].formid;
+          formEditorSessions[connUUID].connection = conn;
           console.log(connUname + ' connected to form editor. Sending starting form data');
           r.db('FormCreator').table('forms').get(connFormID).run(function(err,data){
             if(err)throw(err);
             conn.write('Basedata: ' + JSON.stringify(data.data));
           });
+
+          if(formEditorUsers[connFormID]){
+            formEditorUsers[connFormID].push(connUUID);
+          }else{
+            formEditorUsers[connFormID] = [
+              connUUID
+            ];
+          };
         }
         break;
       case "save":
@@ -367,7 +378,8 @@ formeditor.on('connection', function(conn) {
   });
   conn.on('close', function() {
     console.log(connUname + ' disconnected from form editor');
-    if(conn.fes) delete formEditorSessions[connUUID]; // what if the close function never gets called? session stays in that array forever (until restart)
+    if(connUUID) delete formEditorSessions[connUUID]; // what if the close function never gets called? session stays in that array forever (until restart)
+    //if(connFormID) delete formEditorUsers[connFormID].indexOf(connUname);
   });
 });
 
