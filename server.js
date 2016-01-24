@@ -6,6 +6,7 @@ var r = require('rethinkdbdash')();
 var session = require('express-session');
 var bodyParser = require("body-parser");
 var bcrypt = require('bcrypt');
+var uuid = require('node-uuid');
 
 var http = require('http');
 var sockjs = require('sockjs');
@@ -43,7 +44,7 @@ app.get('/css.css', function(req, res){
 */
 
 
-app.use(express.static('www')); 
+app.use(express.static('www'));
 
 
 io.on('connection', function(socket){
@@ -90,7 +91,7 @@ app.get('/login', function(req,res){
     if(sess.user.signedin){
       res.redirect('/');
     }else{
-      res.render('login', {error: req.params.error});
+      res.render('login', {error: req.param('error')});
     }
   }
 });
@@ -125,7 +126,7 @@ app.post('/login', function (req, res) {
       }
     }
   }.bind(this));
-  
+
 });
 var re = new RegExp("^[a-zA-Z0-9]+([._]?[a-zA-Z0-9]+)*$");
 var usrCheck = function(user){
@@ -152,7 +153,8 @@ app.post('/signup', function (req, res) {
                 username: req.body.username,
                 password: passwordhash,
                 email: req.body.email,
-                verify: verification
+                verify: verification,
+                forms: []
               }).run(conn,function(err,result){if (err) throw (err);});
               /*var mail = {
                 name: "ForumCreator.ml",
@@ -171,7 +173,7 @@ app.post('/signup', function (req, res) {
               });*/
               console.log(' Account Created: ' + req.body.username.toLowerCase() + ' with verification code ' + verification);
             }.bind(this));
-            
+
             res.redirect('/login?error=Verification+email+sent');
           }else{
             res.redirect('/signup?error=Invalid+username');
@@ -202,21 +204,82 @@ app.get('/settings', function (req, res) {
   }
 });
 
+formEditorSessions = {};
+function genSessionId(uname,formid){
+  var sessid = uuid.v4();
+  var i = 0;
+  while (formEditorSessions[sessid]){
+    i++
+    if(i > 50){
+      sessid = undefined;
+      break;
+    }
+    sessid = uuid.v4();
+  }
+  console.log('Found session id: ',sessid)
+  if(sessid){
+    formEditorSessions[sessid] = {uname: uname, formid: formid};
+    return sessid;
+  }else{
+    return undefined;
+  }
+}
+
+function startForm(uname){
+  var formid = uuid.v1();
+  r.db('FormCreator').table('forms').insert({
+    id: formid,
+    name: "Test Form",
+    author: uname,
+    collaborators: [],
+    data: {"formdata": []}
+  }).run(conn,function(err,result){if (err) throw (err);});
+  r.db('FormCreator').table('account').get('pfg').update({
+      forms: r.row('forms').append(formid)
+  }).run(conn,function(err,result){if (err) throw err;});
+  return formid;
+}
+
 app.get('/newform', function (req, res) {
   var sess = req.session;
   checkuser(req);
   if(sess.user.signedin){
-    res.render('editor', { username: sess.user.username  });
+    res.render('editor', { username: sess.user.username, sessionid: genSessionId(sess.user.username,req.param('id') ? req.param('id') : startForm(sess.user.username))});
   }else{
     res.redirect('/');
   }
 });
 
+function getFormsFromUser(uname,callback){
+  r.db('FormCreator').table('account').get(uname.toLowerCase()).run(conn,function(err,data){
+    if(err)throw(err);
+    var formnames = [];
+    console.log(data);
+    var counter = data.forms.length;
+    if(counter == 0){callback(formnames);return;}
+    data.forms.forEach(function(formUUID){
+      r.db('FormCreator').table('forms').get(formUUID).run(conn,function(err,qdata){
+        counter--;
+
+        if(err)throw(err);
+        formnames.push({
+          uuid: formUUID,
+          author: qdata.author,
+          name: qdata.name
+        });
+        if(counter == 0)callback(formnames);
+      });
+    });
+  });
+}
+
 app.get('/forms', function (req, res) {
   var sess = req.session;
   checkuser(req);
   if(sess.user.signedin){
-    res.render('files', { username: sess.user.username  });
+    getFormsFromUser(sess.user.username,function(ans){
+      res.render('files', { username: sess.user.username, files: ans});
+    })
   }else{
     res.redirect('/login');
   }
@@ -233,7 +296,7 @@ app.get('/signup', function(req,res){
   if(sess.user.signedin){
     res.redirect('/');
   }else{
-    res.render('signup', {error: req.params.error});
+    res.render('signup', {error: req.param('error')});
   }
 });
 
@@ -250,41 +313,6 @@ app.get('/', function(req,res){
   }else{
     res.redirect('/login');
   }
-  /*var sess = req.session;
-  console.log(sess.user);
-  if(sess.user === undefined){
-    sess.user = {signedin:false};
-  }
-  if(sess.user.signedin){
-    switch(sess.url){
-      case "LIST":
-        console.log('files');
-        res.render('files', { username: sess.user.username  });break;
-      case "LOADFILE":
-        console.log('editor');
-        res.render('editor', { username: sess.user.username  });break;
-      default:
-        console.log('500');
-        res.render('500',{error: 'URL not found: ' + sess.url + '. Refresh page to fix'});
-        sess.url = "LIST";break;
-    }
-  }else{
-    if(sess.url === undefined){sess.url = "LOGIN";}
-    switch(sess.url){
-      case "LOGIN":
-        console.log('login');
-        res.render('login');break;
-      case "SIGNUP":
-        console.log('signup');
-        res.render('signup');break;
-      default:
-        console.log('500');
-        res.render('500',{error: 'URL not found: ' + sess.url + '. Refresh page to fix'});
-        sess.url = "LOGIN";break;
-    }
-  }*/
-  //res.render('signup');
-  //res.render('editor');
 });
 app.get('*', function(req,res){
   res.render('404');
@@ -294,12 +322,52 @@ http_s.listen(process.env.PORT, function(){
   console.log('listening on *:' + process.env.PORT);
 });
 
+function parseData(message){
+  switch (typeof message) {
+    case "string":
+      var spm = message.split(': ');
+      return {
+        "type": "string",
+        "header": spm[0],
+        "data": message.substring(spm[0].length + 2)
+      };
+    default:
+      return undefined;
+  }
+}
+
 var formeditor = sockjs.createServer({ sockjs_url: 'http://cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js' });
 formeditor.on('connection', function(conn) {
+  var connUUID = undefined;
+  var connUname = undefined;
+  var connFormID = undefined;
+
   conn.on('data', function(message) {
-    conn.write(message);
+    var dataMessage = parseData(message);
+    switch (dataMessage.header){
+      case "auth":
+        if(dataMessage.type == "string"){
+          connUUID = dataMessage.data;
+          connUname = formEditorSessions[connUUID].uname;
+          connFormID = formEditorSessions[connUUID].formid;
+          console.log(connUname + ' connected to form editor. Sending starting form data');
+          r.db('FormCreator').table('forms').get(connFormID).run(function(err,data){
+            if(err)throw(err);
+            conn.write('Basedata: ' + JSON.stringify(data.data));
+          });
+        }
+        break;
+      case "save":
+        if(dataMessage.type == "string" && connFormID){
+          //console.log(JSON.parse(dataMessage.data), connFormID);
+          //r.db("FormCreator").table("forms").get(connFormID).update({data:JSON.parse(dataMessage.data)}).run(conn,function(err){if(err)throw(err);});
+        }
+        break;
+    }
   });
   conn.on('close', function() {
+    console.log(connUname + ' disconnected from form editor');
+    if(conn.fes) delete formEditorSessions[connUUID]; // what if the close function never gets called? session stays in that array forever (until restart)
   });
 });
 

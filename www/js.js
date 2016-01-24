@@ -1,21 +1,52 @@
 /* global SockJS */
 console.log('Loaded');
-var sock = new SockJS('/formeditor');
+var sock = new SockJS(window.location.protocol + '//' + window.location.hostname + ':9999/formeditor');
+
+var data = [];
+
+function error(message){
+  $('#err').removeClass('errormsg invisible')
+    .text('Error: ' + message)
+    .addClass('errormsg')
+}
 
 sock.onopen = function() {
   console.log('Connected to server');
 
-  sock.send('auth: pfg');
+  sock.send('auth: '+sessid);
   //sock.close();
 };
+
+function parseData(message){
+  switch (typeof message) {
+    case "string":
+      var spm = message.split(': ');
+      return {
+        "type": "string",
+        "header": spm[0],
+        "data": message.substring(spm[0].length + 2)
+      };
+    default:
+      return undefined;
+  }
+}
+
 sock.onmessage = function(e) {
-  console.log('Message:', e.data);
+  var msg = parseData(e.data);
+  if(msg.type == 'string'){
+    switch (msg.header) {
+      case "Basedata":
+        data = JSON.parse(msg.data).formdata;
+        break;
+      default:
+
+    }
+  }
 };
 sock.onclose = function() {
   console.log('Server closed the connection');
+  error('Lost connection from server');
 };
-
-var data = [];
 var types = {
   multipleChoice:0,
   multiline:1,
@@ -29,11 +60,12 @@ var addClose = function(){
   $('#add').append($('<button>').text('Add question').click(addOpen));
   $('#add').append($('<button>').text('Add other').click(otherOpen));
   $('#add').append($('<button>').text('Settings').click(settingsOpen));
+  $('#add').append($('<button>').text('Save').click(compileData));
 };
 var addOpen = function(){
   prevBtn = addOpen;
   $('#add').empty();
-  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<button>').text('<').click(addClose));
   $('#add').append($('<button>').text('Multiple Choice').click(addMultipleChoice));
   $('#add').append($('<button>').text('Multiline Text').click(niy));
   $('#add').append($('<button>').text('One line text').click(niy));
@@ -41,7 +73,7 @@ var addOpen = function(){
 var otherOpen = function(){
   prevBtn = otherOpen;
   $('#add').empty();
-  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<button>').text('<').click(addClose));
   $('#add').append($('<button>').text('Text section').click(niy));
   $('#add').append($('<button>').text('Help section').click(niy));
   $('#add').append($('<button>').text('Link').click(niy));
@@ -51,7 +83,7 @@ var otherOpen = function(){
 var settingsOpen = function(){
   prevBtn = settingsOpen;
   $('#add').empty();
-  $('#add').append($('<button>').text('<').click(prevBtn));
+  $('#add').append($('<button>').text('<').click(addClose));
   $('#add').append($('<button>').text('Mode').click(niy));
   $('#add').append($('<button>').text('Responses').click(niy));
 };
@@ -115,24 +147,9 @@ var compileData = function(){
   data.forEach(function(item,i){
     switch(item.type){
       case types.multipleChoice:
-        /*var addOption = $('<li>')
-          .append($('<input>')
-            .val('Click to add option')
-            .attr('class','italic multiplechoice input')
-            .click());
-        $('#data').append($('<div>')
-          .append($('<input>')
-            .val(bit.help == 0 ? "Click to add text" : bit.help)
-            .attr('class','title input'))
-          .append($('<input>')
-            .val(bit.help == 0 ? "Click to add text" : bit.help)
-            .attr('class','helpline input'))
-          .append($('<ul>')
-            .append(addOption))
-        );*/
         var mcOptions = $('<ul>');
         item.responses.forEach(function(resp){
-          var iToAppend = 
+          var iToAppend =
             $('<input>')
               .val(resp.text)
               .attr('placeholder', resp.noCallback ? 'Click to add text' : 'Click to add option')
@@ -159,20 +176,17 @@ var compileData = function(){
             )
             .append(mcOptions)
         );
-        
-        
+
+
         break;
       default:
         console.log("err_type_not_found");
         $('#data').append($('<h1>').text('Error! Type not found'));
     }
   });
+  sock.send('save: ' + JSON.stringify({formdata:data}));
 };
 
 $('#addOpen').click(function(){
   addOpen();
 });
-
-
-
-

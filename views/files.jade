@@ -11,3 +11,7 @@ html
     ul
       li
         a(href='/newform') New Form
+      each file in files
+        li
+          a(href='/newform?id=' + file.uuid)= file.name
+          a(href='/deleteform/' + file.uuid)  [x]

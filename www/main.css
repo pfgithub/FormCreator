@@ -108,7 +108,7 @@ input[type="submit"]:hover {
   }
 }
 
-#error {
+#error, .errormsg {
   background-color: #FF3D3D;
   text-align: center;
   width: 100%;
@@ -121,4 +121,7 @@ input[type="submit"]:hover {
   -webkit-animation-duration: 1s;
   -moz-animation-name: slidein;
   -moz-animation-duration: 1s;
+}
+.invisible{
+  display:none;
 }

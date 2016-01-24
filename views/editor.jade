@@ -2,8 +2,10 @@ doctype html
 html
   head
     title Form Creator - Description
+    link(rel='stylesheet', href='main.css', type='text/css')
     link(rel='stylesheet', href='editor.css', type='text/css')
   body
+    #err.invisible Error: #{error}
     | Logged in as 
     span.username.italic #{username} 
     a(href='forms') My Forms
@@ -14,4 +16,6 @@ html
       span#add.add You need javascript to use Form Creator
     script(type='text/javascript', src='https://code.jquery.com/jquery-2.1.4.js')
     script(type='text/javascript', src='//cdn.jsdelivr.net/sockjs/1.0.3/sockjs.min.js')
+    script.
+      var sessid = '#{sessionid}';   
     script(type='text/javascript', src='js.js')
